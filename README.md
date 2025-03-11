@@ -6,7 +6,7 @@ Also sets up a UDP server that you can get the data from
 
 For a universit project
 
-Before running:
+### Before running:
 
 pip install mediapipe
 pip install opencv-python
