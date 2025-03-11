@@ -1,10 +1,10 @@
-# DE3_maestroMotion
+# Hand landmark and guesture recognition with UDP server
 
 Simple handlandmark detection and gesture recognition using mediapipe in python
 
 Also sets up a UDP server that you can get the data from
 
-For a universit project
+For a university project.
 
 ### Before running:
 
