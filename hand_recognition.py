@@ -11,22 +11,6 @@ mpHands = mp.solutions.hands
 hands = mpHands.Hands()
 mpDraw = mp.solutions.drawing_utils
 
-BaseOptions = mp.tasks.BaseOptions
-GestureRecognizer = mp.tasks.vision.GestureRecognizer
-GestureRecognizerOptions = mp.tasks.vision.GestureRecognizerOptions
-GestureRecognizerResult = mp.tasks.vision.GestureRecognizerResult
-VisionRunningMode = mp.tasks.vision.RunningMode
-
-# Create a gesture recognizer instance with the live stream mode:
-def print_result(result: GestureRecognizerResult, output_image: mp.Image, timestamp_ms: int):
-    print('gesture recognition result: {}'.format(result))
-
-options = GestureRecognizerOptions(
-    base_options=BaseOptions(model_asset_path='/path/to/model.task'),
-    running_mode=VisionRunningMode.LIVE_STREAM,
-    result_callback=print_result)
-with GestureRecognizer.create_from_options(options) as recognizer:
-
 pTime = 0
 cTime = 0
 
@@ -51,13 +35,14 @@ while True:
 
     h, w, c = img.shape
     img = np.zeros((h, w, 3), np.uint8)
-    
+
     if results.multi_hand_landmarks:
         client.send_message("/numHands", [len(results.multi_hand_landmarks)])
         for handLms in results.multi_hand_landmarks:
             #todo change so that current gesture is an array, if two hand array length 2 if one array length 1 etc
             #client.send_message("/gesture", [len(results.multi_hand_landmarks)])
             for id, lm in enumerate(handLms.landmark):
+                h, w, c = img.shape
                 cx, cy = int(lm.x * w), int(lm.y * h)
                 #print(id, cx, cy)
                 client.send_message("/" + lmkNames[id], [cx, cy])
@@ -77,7 +62,6 @@ while True:
     cTime = time.time()
     fps = 1 / (cTime - pTime)
     pTime = cTime
-    #print (fps)
 
     cv2.putText(img, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_PLAIN, 3,
                 (255, 0, 255), 3)
