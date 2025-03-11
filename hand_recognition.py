@@ -1,75 +1,81 @@
 #https://github.com/Sousannah/hand-tracking-using-mediapipe
 import cv2
 import mediapipe as mp
-import time
 import numpy as np
 from pythonosc.udp_client import SimpleUDPClient
-import random
 import time
-
-mpHands = mp.solutions.hands
-hands = mpHands.Hands()
-mpDraw = mp.solutions.drawing_utils
+from pathlib import Path
 
 pTime = 0
 cTime = 0
 
 lmkNames = ["wrist", "thumb_cmc", "thumb_mcp", "thumb_ip", "thumb_tip",
-    "index_finger_mcp", "index_finger_pip", "index_finger_dip", "index_finger_tip",
-    "middle_finger_mcp", "middle_finger_pip", "middle_finger_dip", "middle_finger_tip",
-    "ring_finger_mcp", "ring_finger_pip", "ring_finger_dip", "ring_finger_tip",
-    "pinky_mcp", "pinky_pip", "pinky_dip", "pinky_tip"]
+            "index_finger_mcp", "index_finger_pip", "index_finger_dip", "index_finger_tip",
+            "middle_finger_mcp", "middle_finger_pip", "middle_finger_dip", "middle_finger_tip",
+            "ring_finger_mcp", "ring_finger_pip", "ring_finger_dip", "ring_finger_tip",
+            "pinky_mcp", "pinky_pip", "pinky_dip", "pinky_tip"]
 
 # Set the IP and port (MaxMSP listens on port 7400)
 ip = "127.0.0.1"
 port = 7400
-client = SimpleUDPClient(ip, port) # Create an OSC client
 
-cap = cv2.VideoCapture(0)
+BaseOptions = mp.tasks.BaseOptions
+GestureRecognizer = mp.tasks.vision.GestureRecognizer
+GestureRecognizerOptions = mp.tasks.vision.GestureRecognizerOptions
+GestureRecognizerResult = mp.tasks.vision.GestureRecognizerResult
+VisionRunningMode = mp.tasks.vision.RunningMode
 
-while True:
-    success, img = cap.read()
-    img = cv2.flip(img, 1)
-    imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    results = hands.process(imgRGB)
+awaitResult = True
 
-    h, w, c = img.shape
-    img = np.zeros((h, w, 3), np.uint8)
+# Create a gesture recognizer instance with the image mode:
+# TODO why would I use live stream mode vs image mode?
 
-    if results.multi_hand_landmarks:
-        client.send_message("/numHands", [len(results.multi_hand_landmarks)])
-        for handLms in results.multi_hand_landmarks:
-            #todo change so that current gesture is an array, if two hand array length 2 if one array length 1 etc
-            #client.send_message("/gesture", [len(results.multi_hand_landmarks)])
-            for id, lm in enumerate(handLms.landmark):
-                h, w, c = img.shape
-                cx, cy = int(lm.x * w), int(lm.y * h)
-                #print(id, cx, cy)
-                client.send_message("/" + lmkNames[id], [cx, cy])
-                if id == 4 :
-                    cv2.circle(img, (cx, cy), 15, (255, 0, 255), cv2.FILLED)
-                if id == 8 :
-                    cv2.circle(img, (cx, cy), 15, (255, 0, 255), cv2.FILLED)
-                if id == 12 :
-                    cv2.circle(img, (cx, cy), 15, (255, 0, 255), cv2.FILLED)
-                if id == 16 :
-                    cv2.circle(img, (cx, cy), 15, (255, 0, 255), cv2.FILLED)
-                if id == 20 :
-                    cv2.circle(img, (cx, cy), 15, (255, 0, 255), cv2.FILLED)
+with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
+    model_data = file.read()
 
-            mpDraw.draw_landmarks(img, handLms, mpHands.HAND_CONNECTIONS)
+    options = GestureRecognizerOptions(
+        base_options=BaseOptions(model_asset_buffer=model_data),
+        running_mode=VisionRunningMode.IMAGE)
+    with GestureRecognizer.create_from_options(options) as recognizer:
 
-    cTime = time.time()
-    fps = 1 / (cTime - pTime)
-    pTime = cTime
+        cap = cv2.VideoCapture(0)
 
-    cv2.putText(img, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_PLAIN, 3,
-                (255, 0, 255), 3)
+        client = SimpleUDPClient(ip, port) # Create an OSC client
 
-    cv2.imshow("Image", img)
-    key = cv2.waitKey(1) & 0xFF
-    if key == ord('q'):
-        break
+        while True:
+            success, img = cap.read()
+            img = cv2.flip(img, 1)
+            imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+            mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=img)
+            awaitResult = True
+            result = recognizer.recognize(mp_image)
+
+            client.send_message("/numHands", [len(result.hand_world_landmarks)])
+
+            for hand in result.hand_landmarks:
+                id = 0
+                for landmark in hand:
+                    #print(landmark.x)
+                    client.send_message("/" + lmkNames[id], [int(landmark.x * 1000), int(landmark.y * 1000), int(landmark.z * 1000)])
+                    id = id + 1
+
+            for hand in result.gestures:
+                #print(hand[0].category_name)
+                client.send_message("/gesture", [hand[0].category_name])
+
+            cTime = time.time()
+            fps = 1 / (cTime - pTime)
+            pTime = cTime
+
+            h, w, c = img.shape
+            #img = np.zeros((h, w, 3), np.uint8)
+            cv2.putText(img, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
+            cv2.imshow("Image", img)
+
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord('q'):
+                break
 
 cap.release()
 cv2.destroyAllWindows()
