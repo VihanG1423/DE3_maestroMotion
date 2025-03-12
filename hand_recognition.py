@@ -54,6 +54,8 @@ with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
             awaitResult = True
             result = recognizer.recognize(mp_image)
 
+            #img = np.zeros((h, w, 3), np.uint8)
+
             client.send_message("/numHands", [len(result.hand_world_landmarks)])
 
             for hand in result.hand_landmarks:
@@ -77,7 +79,6 @@ with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
             fps = 1 / (cTime - pTime)
             pTime = cTime
 
-            #img = np.zeros((h, w, 3), np.uint8)
             cv2.putText(img, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
             cv2.imshow("Image", img)
 
