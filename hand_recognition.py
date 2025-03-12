@@ -15,6 +15,8 @@ lmkNames = ["wrist", "thumb_cmc", "thumb_mcp", "thumb_ip", "thumb_tip",
             "ring_finger_mcp", "ring_finger_pip", "ring_finger_dip", "ring_finger_tip",
             "pinky_mcp", "pinky_pip", "pinky_dip", "pinky_tip"]
 
+lmksToDraw = [0, 4, 8, 12, 16, 20]
+
 # Set the IP and port (MaxMSP listens on port 7400)
 ip = "127.0.0.1"
 port = 7400
@@ -44,6 +46,7 @@ with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
 
         while True:
             success, img = cap.read()
+            h, w, c = img.shape
             img = cv2.flip(img, 1)
             imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
@@ -58,6 +61,12 @@ with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
                 for landmark in hand:
                     #print(landmark.x)
                     client.send_message("/" + lmkNames[id], [int(landmark.x * 1000), int(landmark.y * 1000), int(landmark.z * 1000)])
+
+                    if id in lmksToDraw:
+                        cx, cy = int(landmark.x * w), int(landmark.y * h)
+                        cv2.circle(img, (cx, cy), 5, (255, 0, 255), cv2.FILLED)
+
+
                     id = id + 1
 
             for hand in result.gestures:
@@ -68,7 +77,6 @@ with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
             fps = 1 / (cTime - pTime)
             pTime = cTime
 
-            h, w, c = img.shape
             #img = np.zeros((h, w, 3), np.uint8)
             cv2.putText(img, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
             cv2.imshow("Image", img)
