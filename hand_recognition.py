@@ -74,12 +74,13 @@ with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
             for hand in result.gestures:
                 #print(hand[0].category_name)
                 client.send_message("/gesture", [hand[0].category_name])
+                cv2.putText(img, hand[0].category_name, (10, 100), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
 
             cTime = time.time()
             fps = 1 / (cTime - pTime)
             pTime = cTime
 
-            cv2.putText(img, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
+            cv2.putText(img, str(int(fps)), (10, 30), cv2.FONT_HERSHEY_PLAIN, 2, (255, 255, 255), 3)
             cv2.imshow("Image", img)
 
             key = cv2.waitKey(1) & 0xFF
