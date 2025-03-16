@@ -1,7 +1,7 @@
 #https://github.com/Sousannah/hand-tracking-using-mediapipe
 import cv2
 import mediapipe as mp
-import numpy as np
+#import numpy as np
 from pythonosc.udp_client import SimpleUDPClient
 import time
 from pathlib import Path
@@ -56,11 +56,12 @@ with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
 
             client.send_message("/numHands", [len(result.hand_world_landmarks)])
 
+            handID = 0
             for hand in result.hand_landmarks:
                 id = 0
                 for landmark in hand:
                     #print(landmark.x)
-                    client.send_message("/" + lmkNames[id], [int(landmark.x * 1000), int(landmark.y * 1000), int(landmark.z * 1000)])
+                    client.send_message("/" + lmkNames[id] + "_" + str(handID), [int(landmark.x * 1000), int(landmark.y * 1000), int(landmark.z * 1000)])
 
                     if id in lmksToDraw:
                         cx, cy = int(landmark.x * w), int(landmark.y * h)
@@ -68,10 +69,12 @@ with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
 
 
                     id = id + 1
+                handID = handID + 1
 
+            handID = 0
             for hand in result.gestures:
                 #print(hand[0].category_name)
-                client.send_message("/gesture", [hand[0].category_name])
+                client.send_message("/gesture" + "_" + str(handID), [hand[0].category_name])
                 cv2.putText(img, hand[0].category_name, (10, 100), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
 
             cTime = time.time()
