@@ -28,9 +28,13 @@ Press q to quit
 
 ## UDP Server data format
 
-There are 3 endpoints to get hand data from:
+There are 4 endpoints to get hand data from:
 
-- ```/numHands -> [n]``` - Where ```n``` is an integer containing to number of hands currently being detected
+- ```/numHands -> [n]``` - Where ```n``` is an integer containing to number of hands currently being detected.
+Currently max is set to 2, feel free to increase it in ```options = GestureRecognizerOptions( ... num_hands=2)```
+
+
+- ```/handedness_<n> -> [h]``` - Where ```h``` is an string containing either ```right``` or ```left``` for hand id ```n```
 
 
 - ```/gesture_<n> -> [g]```  - Where ```g``` is a string containing the name of the current gesture and ```n``` is the hand id.
