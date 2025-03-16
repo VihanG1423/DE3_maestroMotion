@@ -35,13 +35,15 @@ with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
 
     options = GestureRecognizerOptions(
         base_options=BaseOptions(model_asset_buffer=model_data),
-        running_mode=VisionRunningMode.IMAGE,
+        running_mode=VisionRunningMode.VIDEO,
         num_hands=2)
     with GestureRecognizer.create_from_options(options) as recognizer:
 
         cap = cv2.VideoCapture(0)
 
         client = SimpleUDPClient(ip, port) # Create an OSC client
+
+        startTime = time.time()
 
         while True:
             success, img = cap.read()
@@ -50,8 +52,12 @@ with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
             imgRGBified = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
             mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=imgRGBified)
-            awaitResult = True
-            result = recognizer.recognize(mp_image)
+
+            cTime = time.time()
+            fps = 1 / (cTime - pTime)
+            pTime = cTime
+
+            result = recognizer.recognize_for_video(mp_image, int((cTime - startTime) * 1000))
 
             #img = np.zeros((h, w, 3), np.uint8)
 
@@ -68,7 +74,6 @@ with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
                         cx, cy = int(landmark.x * w), int(landmark.y * h)
                         cv2.circle(img, (cx, cy), 5, (255, 0, 255), cv2.FILLED)
 
-
                     id = id + 1
                 handID = handID + 1
 
@@ -78,10 +83,6 @@ with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
                 client.send_message("/gesture" + "_" + str(handID), [hand[0].category_name])
                 cv2.putText(img, hand[0].category_name, (10, (handID + 1) * 80), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
                 handID = handID + 1
-
-            cTime = time.time()
-            fps = 1 / (cTime - pTime)
-            pTime = cTime
 
             cv2.putText(img, str(int(fps)), (10, 30), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 0), 3)
             cv2.imshow("Image", img)
