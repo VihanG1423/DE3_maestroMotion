@@ -35,7 +35,8 @@ with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
 
     options = GestureRecognizerOptions(
         base_options=BaseOptions(model_asset_buffer=model_data),
-        running_mode=VisionRunningMode.IMAGE)
+        running_mode=VisionRunningMode.IMAGE,
+        num_hands=2)
     with GestureRecognizer.create_from_options(options) as recognizer:
 
         cap = cv2.VideoCapture(0)
@@ -75,7 +76,8 @@ with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
             for hand in result.gestures:
                 #print(hand[0].category_name)
                 client.send_message("/gesture" + "_" + str(handID), [hand[0].category_name])
-                cv2.putText(img, hand[0].category_name, (10, 100), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
+                cv2.putText(img, hand[0].category_name, (10, (handID + 1) * 80), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
+                handID = handID + 1
 
             cTime = time.time()
             fps = 1 / (cTime - pTime)
