@@ -21,3 +21,19 @@ To run:
 ```
 python hand_recognition.py
 ```
+
+## UDP Server data format
+
+There are 3 endpoints to get hand data from:
+
+- ```/numHands -> [n]``` - Where ```n``` is an integer containing to number of hands currently being detected
+
+
+- ```/gesture -> [g]```  - Where ```g``` is a string containing the name of the current gesture.
+Possible names are ```"None", "Closed_Fist", "Open_Palm", "Pointing_Up", "Thumb_Down", "Thumb_Up", "Victory", "ILoveYou"```
+
+
+- ```/<landmark name> -> [x, y, z]``` - Where ```x```, ```y``` and ```z``` are the screen space coordinates (normalised from 0 - 1000) of the hand landmark with a name of ```<landmark name>```.
+e.g. ```/wrist``` would give you the coordinates of the wrist landmark.
+Possible landmark names (use lowercase):
+![](./hand_landmarks.png)
