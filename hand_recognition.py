@@ -65,7 +65,6 @@ with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
             for hand in result.hand_landmarks:
                 id = 0
                 for landmark in hand:
-                    print([landmark.x, landmark.y])
                     client.send_message("/" + lmkNames[id] + "_" + str(handID), [int(landmark.x * 1000), int(landmark.y * 1000), int(landmark.z * 1000)])
                     # draw landmarks in video output
                     if id in lmksToDraw:
