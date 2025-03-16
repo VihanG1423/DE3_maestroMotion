@@ -84,6 +84,13 @@ with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
                 cv2.putText(img, hand[0].category_name, (10, (handID + 1) * 80), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
                 handID = handID + 1
 
+            handID = 0
+            for hand in result.handedness:
+                #print(hand[0].category_name)
+                client.send_message("/handedness" + "_" + str(handID), [hand[0].category_name])
+                #cv2.putText(img, hand[0].category_name, (10, (handID + 1) * 80), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
+                handID = handID + 1
+
             cv2.putText(img, str(int(fps)), (10, 30), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 0), 3)
             cv2.imshow("Image", img)
 
