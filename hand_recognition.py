@@ -27,8 +27,7 @@ GestureRecognizerOptions = mp.tasks.vision.GestureRecognizerOptions
 GestureRecognizerResult = mp.tasks.vision.GestureRecognizerResult
 VisionRunningMode = mp.tasks.vision.RunningMode
 
-# Create a gesture recognizer instance with the image mode:
-# TODO why would I use live stream mode vs image mode?
+# Create a gesture recognizer instance with the video
 
 with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
     model_data = file.read()
@@ -67,7 +66,7 @@ with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
             for hand in result.hand_landmarks:
                 id = 0
                 for landmark in hand:
-                    #print(landmark.x)
+                    print([landmark.x, landmark.y])
                     client.send_message("/" + lmkNames[id] + "_" + str(handID), [int(landmark.x * 1000), int(landmark.y * 1000), int(landmark.z * 1000)])
 
                     if id in lmksToDraw:
