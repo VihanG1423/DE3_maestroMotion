@@ -1,7 +1,6 @@
 #https://github.com/Sousannah/hand-tracking-using-mediapipe
 import cv2
 import mediapipe as mp
-#import numpy as np
 from pythonosc.udp_client import SimpleUDPClient
 import time
 from pathlib import Path
@@ -58,17 +57,17 @@ with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
 
             result = recognizer.recognize_for_video(mp_image, int((cTime - startTime) * 1000))
 
-            #img = np.zeros((h, w, 3), np.uint8)
-
+            # send number of hands
             client.send_message("/numHands", [len(result.hand_world_landmarks)])
 
+            # hand landmarks
             handID = 0
             for hand in result.hand_landmarks:
                 id = 0
                 for landmark in hand:
                     print([landmark.x, landmark.y])
                     client.send_message("/" + lmkNames[id] + "_" + str(handID), [int(landmark.x * 1000), int(landmark.y * 1000), int(landmark.z * 1000)])
-
+                    # draw landmarks in video output
                     if id in lmksToDraw:
                         cx, cy = int(landmark.x * w), int(landmark.y * h)
                         cv2.circle(img, (cx, cy), 5, (255, 0, 255), cv2.FILLED)
@@ -76,13 +75,14 @@ with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
                     id = id + 1
                 handID = handID + 1
 
+            # gestures
             handID = 0
             for hand in result.gestures:
-                #print(hand[0].category_name)
                 client.send_message("/gesture" + "_" + str(handID), [hand[0].category_name])
                 cv2.putText(img, hand[0].category_name, (10, (handID + 1) * 80), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
                 handID = handID + 1
 
+            # handedness
             handID = 0
             for hand in result.handedness:
                 #print(hand[0].category_name)
@@ -90,6 +90,7 @@ with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
                 #cv2.putText(img, hand[0].category_name, (10, (handID + 1) * 80), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
                 handID = handID + 1
 
+            # show video output
             cv2.putText(img, str(int(fps)), (10, 30), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 0), 3)
             cv2.imshow("Image", img)
 
