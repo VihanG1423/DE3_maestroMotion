@@ -14,6 +14,9 @@ pip install mediapipe
 ```
 pip install opencv-python
 ```
+```
+pip install python-osc
+```
 
 yeaaa i know I should probably setup a virtual envioronment for this lol (maybe laterrr)
 
@@ -21,6 +24,7 @@ To run:
 ```
 python hand_recognition.py
 ```
+Press q to quit
 
 ## UDP Server data format
 
