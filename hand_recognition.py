@@ -46,9 +46,9 @@ with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
             success, img = cap.read()
             h, w, c = img.shape
             img = cv2.flip(img, 1)
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            imgRGBified = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-            mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=img)
+            mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=imgRGBified)
             awaitResult = True
             result = recognizer.recognize(mp_image)
 
