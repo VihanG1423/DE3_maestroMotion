@@ -37,3 +37,4 @@ Possible names are ```"None", "Closed_Fist", "Open_Palm", "Pointing_Up", "Thumb_
 e.g. ```/wrist``` would give you the coordinates of the wrist landmark.
 Possible landmark names (use lowercase):
 ![](./hand_landmarks.png)
+Image from: https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker
