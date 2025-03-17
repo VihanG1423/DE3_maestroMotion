@@ -37,7 +37,7 @@ with open(str(Path("./gesture_recognizer.task").resolve()), 'rb') as file:
         num_hands=2)
     with GestureRecognizer.create_from_options(options) as recognizer:
 
-        cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+        cap = cv2.VideoCapture(0)
 
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
