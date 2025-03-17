@@ -2,6 +2,8 @@
 
 [![Ardalis.GuardClauses on YouTube](http://img.youtube.com/vi/Smdt0wwmDsk/0.jpg)](http://www.youtube.com/watch?v=Smdt0wwmDsk)
 
+Motion Capture stuff:
+
 Simple handlandmark detection and gesture recognition using mediapipe in python
 
 Also sets up a UDP server that you can get the data from
