@@ -1,4 +1,4 @@
-# Hand landmark and guesture recognition with UDP server
+# AXD Digital Report
 
 Simple handlandmark detection and gesture recognition using mediapipe in python
 
