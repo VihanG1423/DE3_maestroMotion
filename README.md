@@ -1,51 +1,89 @@
-# AXD Digital Report
+AXD Digital Report: Motion-Controlled Audio Interaction
 
-[![Ardalis.GuardClauses on YouTube](http://img.youtube.com/vi/Smdt0wwmDsk/0.jpg)](http://www.youtube.com/watch?v=Smdt0wwmDsk)
 
-Motion Capture stuff:
+Overview
+This project explores the use of real-time hand tracking and gesture recognition to control audio elements interactively. Using MediaPipe, Max/MSP Jitter, and UDP communication, this system enables users to manipulate musical components (e.g., toggling instruments, generating drum beats) using motion gestures.
 
-Simple handlandmark detection and gesture recognition using mediapipe in python
+This work was developed as part of the Audio Experience Design (AXD) module at the Dyson School of Design Engineering. The final deliverable contributes to an interactive audio experience installation, where users engage with music through intuitive gesture-based interactions.
 
-Also sets up a UDP server that you can get the data from
+Project Features
+✅ Hand Tracking & Gesture Recognition: Uses Google’s MediaPipe to track hand landmarks and classify gestures.
+✅ UDP Server for Real-Time Data Transmission: Sends hand position, gestures, and detected motion via OSC (Open Sound Control).
+✅ Max/MSP Integration: Controls audio-reactive visuals and generates drum beats in real-time.
+✅ Gesture-Based Instrument Control: Allows users to toggle musical components on and off.
+✅ Grid-Based Interaction: Maps hand positions to an 8×3 grid to trigger drum sounds dynamically.
 
-For a university project.
+Installation & Dependencies
+Before Running:
+Ensure you have Python installed (recommended: Python 3.7 - 3.10). Install the necessary libraries:
 
-### Before running:
-
-```
+bash
+Copy
+Edit
 pip install mediapipe
-```
-```
 pip install opencv-python
-```
-```
 pip install python-osc
-```
+Running the Script:
+To start hand tracking and UDP communication:
 
-To run:
-```
+bash
+Copy
+Edit
 python hand_recognition.py
-```
-Press q to quit
+Press 'q' to quit the program.
 
-## UDP Server data format
+UDP Server: Data Format
+The hand recognition script transmits data over UDP using Open Sound Control (OSC). The following endpoints are available:
 
-There are 4 endpoints to get hand data from:
+1. Number of Hands Detected
+/numHands -> [n]
 
-- ```/numHands -> [n]``` - Where ```n``` is an integer containing to number of hands currently being detected.
-Currently max is set to 2, feel free to increase it in ```options = GestureRecognizerOptions( ... num_hands=2)```
+n: Integer representing the number of hands detected (max: 2).
+2. Handedness (Left/Right Hand Identification)
+/handedness_<n> -> [h]
+
+h: "right" or "left" for hand ID n.
+3. Gesture Recognition
+/gesture_<n> -> [g]
+
+g: Recognized gesture (e.g., "Open_Palm", "Closed_Fist", "Victory", "Thumb_Up").
+4. Hand Landmark Coordinates
+/<landmark name>_<n> -> [x, y, z]
+
+x, y, z: Normalized hand landmark coordinates (0-1000).
+n: Hand ID.
+📌 Example:
+/wrist_0 -> [500, 300, 20] (Wrist coordinates for hand 0)
 
 
-- ```/handedness_<n> -> [h]``` - Where ```h``` is an string containing either ```right``` or ```left``` for hand id ```n```
+Image Source: Google AI MediaPipe
 
+Technical Details
+Hand Tracking & Motion Capture
+Landmark Detection: MediaPipe extracts hand joints (wrist, fingertips, knuckles).
+Gesture Recognition: A pre-trained model classifies gestures for real-time input.
+Grid Mapping: Converts hand positions into a grid-based drum sequencer (8×3).
+Max/MSP Integration
+Drum Sequencer: Gestures trigger kick, snare, and hi-hat sounds based on position.
+Visual Feedback: Uses Jitter to create audio-reactive visuals.
+Dynamic Sound Control: Users can modify beats via hand movement and gestures.
+Use Case: Interactive Music Performance
+🎵 Drum Beat Generation:
 
-- ```/gesture_<n> -> [g]```  - Where ```g``` is a string containing the name of the current gesture and ```n``` is the hand id.
-Possible names are ```"None", "Closed_Fist", "Open_Palm", "Pointing_Up", "Thumb_Down", "Thumb_Up", "Victory", "ILoveYou"```
+Moving cubes trigger the kick drum.
+Still cubes activate the snare drum.
+Hi-hat follows the metronome.
+🎶 Live Gesture-Based Audio Control:
 
+Users toggle instruments on/off with gestures.
+The grid system allows for dynamic beat sequencing.
+Future Enhancements
+📡 Multi-User Interaction: Support for multiple users controlling different instruments.
+🎛️ Extended Gesture Library: More gesture-based audio effects.
+🔊 Sound Spatialization: 3D positioning for immersive audio experiences.
+🎨 Advanced Visuals: More complex generative graphics in Max/MSP Jitter.
+Credits & Contributors
+🎓 Developed for: Dyson School of Design Engineering – Audio Experience Design (AXD).
+👨‍💻 Project Lead: Your Name
+🔗 Repository: [GitHub Project Link]
 
-- ```/<landmark name>_<n> -> [x, y, z]``` - Where ```x```, ```y``` and ```z``` are the screen space coordinates (normalised from 0 - 1000) of the hand landmark with a name of ```<landmark name>```.
-```n``` is the hand id.
-e.g. ```/wrist``` would give you the coordinates of the wrist landmark.
-Possible landmark names (use lowercase):
-![](./hand_landmarks.png)
-Image from: https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker
